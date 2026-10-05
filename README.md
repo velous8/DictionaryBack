@@ -55,223 +55,165 @@ Backend отвечает за:
 
 # Обзор архитектуры
 
-## Диаграмма классов
+## Диаграммы
+
+### Диаграмма классов
 
 ```mermaid
 classDiagram
     class User {
-        +UUID id
-        +string email
-        +string passwordHash
-        +UserRole role
-        +Date createdAt
-        +Date updatedAt
-        +boolean isActivated
-        +string activationLink
+        UUID id
+        string email
+        string passwordHash
+        UserRole role
+        boolean isActivated
+        string activationLink
+        Date createdAt
+        Date updatedAt
     }
 
     class RefreshToken {
-        +UUID id
-        +UUID userId
-        +string tokenHash
-        +Date expiresAt
-        +Date createdAt
-        +boolean revoked
+        UUID id
+        UUID userId
+        string tokenHash
+        Date expiresAt
+        Date createdAt
+        boolean revoked
     }
 
+    class Word {
+        UUID id
+        string eng
+        string transcription
+        string translation
+        string pronunciationUrl
+    }
+
+    class Progression {
+        UUID id
+        UUID userId
+        UUID wordId
+        int progress
+    }
+
+    class UserRole {
+        <<enumeration>>
+        USER
+        ADMIN
+    }
+
+    User --> UserRole
     User "1" --> "*" RefreshToken
-
-# Возможности
-
-### Аутентификация
-
-* регистрация пользователя;
-* авторизация;
-* выход из аккаунта;
-* активация аккаунта через email;
-* Access Token;
-* Refresh Token;
-* ротация Refresh Token;
-* отзыв Refresh Token;
-* хранение Refresh Token в `HttpOnly` cookie.
-
-### Пользователи
-
-* роли `USER` и `ADMIN`;
-* bcrypt-хеширование паролей;
-* проверка активности аккаунта.
-
-### Словарь
-
-* получение всех слов;
-* получение количества слов;
-* получение неизвестных слов;
-* получение слов по ID;
-* получение слов, находящихся в процессе изучения.
-
-### Прогресс
-
-* получение прогресса пользователя;
-* массовое изменение прогресса;
-* ограничение прогресса диапазоном `0–100`;
-* хранение прогресса отдельно для каждого пользователя.
-
-### Администрирование
-
-Администратор может:
-
-* создавать слова;
-* изменять слова;
-* удалять слова.
-
-### Backend
-
-* DTO validation;
-* JWT Guards;
-* Admin Guard;
-* PostgreSQL;
-* TypeORM;
-* HTTP logging;
-* CORS;
-* environment configuration.
-
----
-
-# Технологический стек
-
-| Категория        | Технология                          |
-| ---------------- | ----------------------------------- |
-| Runtime          | Node.js                             |
-| Framework        | NestJS 11                           |
-| Language         | TypeScript                          |
-| Database         | PostgreSQL                          |
-| ORM              | TypeORM                             |
-| Authentication   | JWT                                 |
-| Password hashing | bcrypt                              |
-| Validation       | class-validator / class-transformer |
-| Email            | Nodemailer                          |
-| Cookies          | cookie-parser                       |
-| Logging          | nestjs-pino / Pino                  |
-| Tests            | Jest / Supertest                    |
-| Formatting       | Prettier                            |
-| Linting          | ESLint                              |
-
----
-
-# Быстрый старт
-
-## Предварительные требования
-
-Перед запуском проекта необходимо установить:
-
-* Node.js;
-* npm;
-* PostgreSQL.
-
-Также необходимо создать PostgreSQL database для проекта.
-
----
-
-## Установка
-
-Клонируйте репозиторий:
-
-```bash
-git clone <repository-url>
+    User "1" --> "*" Progression
+    Word "1" --> "*" Progression
 ```
 
-Перейдите в директорию проекта:
+### ER-диаграмма базы данных
 
-```bash
-cd nest-dictionary
+```mermaid
+erDiagram
+    USERS ||--o{ REFRESH_TOKENS : has
+    USERS ||--o{ PROGRESSIONS : has
+    WORDS ||--o{ PROGRESSIONS : has
+
+    USERS {
+        uuid id PK
+        varchar email UK
+        varchar passwordHash
+        enum role
+        timestamp createdAt
+        timestamp updatedAt
+        boolean isActivated
+        varchar activationLink
+    }
+
+    REFRESH_TOKENS {
+        uuid id PK
+        uuid userId FK
+        varchar tokenHash UK
+        timestamp expiresAt
+        timestamp createdAt
+        boolean revoked
+    }
+
+    WORDS {
+        uuid id PK
+        varchar eng
+        varchar transcription
+        text translation
+        varchar pronunciationUrl
+    }
+
+    PROGRESSIONS {
+        uuid id PK
+        uuid userId FK
+        uuid wordId FK
+        integer progress
+    }
 ```
 
-Установите зависимости:
+### Диаграмма последовательности — регистрация
 
-```bash
-npm install
+```mermaid
+sequenceDiagram
+    actor User
+    participant Client
+    participant AuthController
+    participant AuthService
+    participant Database
+    participant TokenService
+    participant EmailService
+
+    User->>Client: Заполняет форму регистрации
+    Client->>AuthController: POST /auth/register
+    AuthController->>AuthService: register(dto)
+
+    AuthService->>Database: Проверка email
+    Database-->>AuthService: Пользователь не найден
+
+    AuthService->>AuthService: Хеширование пароля
+    AuthService->>Database: Создание User
+    Database-->>AuthService: User
+
+    AuthService->>TokenService: Генерация access/refresh tokens
+    TokenService-->>AuthService: Tokens
+
+    AuthService->>Database: Сохранение RefreshToken
+    AuthService->>EmailService: Отправка activation email
+
+    AuthService-->>AuthController: User + accessToken
+    AuthController-->>Client: 201 Created + cookie
+    Client-->>User: Регистрация завершена
 ```
 
-Создайте файл `.env` в корне проекта:
+### Диаграмма последовательности — обновление прогресса
 
-```bash
-touch .env
+```mermaid
+sequenceDiagram
+    actor User
+    participant Client
+    participant WordController
+    participant JwtAuthGuard
+    participant WordService
+    participant Database
+
+    User->>Client: Изменяет прогресс слов
+    Client->>WordController: PATCH /word/progress
+    WordController->>JwtAuthGuard: Проверка JWT
+    JwtAuthGuard-->>WordController: User
+
+    WordController->>WordService: updateWordsProgress()
+    WordService->>Database: Начало транзакции
+    WordService->>Database: Блокировка записей
+    WordService->>WordService: Расчёт нового прогресса
+    WordService->>Database: Upsert Progression
+    Database-->>WordService: Успешно
+    WordService-->>WordController: success + updated
+    WordController-->>Client: 200 OK
+    Client-->>User: Прогресс обновлён
 ```
 
-Заполните необходимые переменные окружения.
-
-После этого запустите приложение:
-
-```bash
-npm run start:dev
-```
-
-API будет доступен по адресу:
-
-```text
-http://localhost:3000
-```
-
----
-
-# Переменные окружения
-
-Пример конфигурации:
-
-```env
-# PostgreSQL
-PGHOST=localhost
-PGPORT=5432
-PGUSER=postgres
-PGPASSWORD=your_password
-PGDATABASE=dictionary
-
-# JWT
-JWT_ACCESS_SECRET=your_access_secret
-JWT_REFRESH_SECRET=your_refresh_secret
-
-# Application
-API_URL=http://localhost:3000
-CLIENT_URL=http://localhost:5173
-
-# Mail
-MAIL_USER=your_email
-MAIL_PASSWORD=your_mail_password
-
-# Logging
-LOG_LEVEL=info
-
-# Environment
-NODE_ENV=development
-```
-
-## Описание переменных
-
-| Переменная           | Назначение                              |
-| -------------------- | --------------------------------------- |
-| `PGHOST`             | Host PostgreSQL                         |
-| `PGPORT`             | Port PostgreSQL                         |
-| `PGUSER`             | Пользователь PostgreSQL                 |
-| `PGPASSWORD`         | Пароль PostgreSQL                       |
-| `PGDATABASE`         | Название базы данных                    |
-| `JWT_ACCESS_SECRET`  | Секрет для Access Token                 |
-| `JWT_REFRESH_SECRET` | Секрет для Refresh Token                |
-| `API_URL`            | URL backend API                         |
-| `CLIENT_URL`         | URL frontend-приложения                 |
-| `MAIL_USER`          | Email для отправки писем                |
-| `MAIL_PASSWORD`      | Пароль/учётные данные почтового сервиса |
-| `LOG_LEVEL`          | Уровень логирования                     |
-| `NODE_ENV`           | Окружение приложения                    |
-
-> Никогда не публикуйте настоящий `.env` в GitHub.
-
-Добавьте его в `.gitignore`:
-
-```gitignore
-.env
-```
-
----
+## Возможности
 
 # Запуск
 
