@@ -45,18 +45,41 @@ API предоставляет регистрацию и авторизацию 
 
 Backend отвечает за:
 
-* регистрацию и авторизацию пользователей;
+* регистрацию, авторизацию и аутентификацию пользователей;
 * активацию аккаунтов через email;
-* выдачу и обновление JWT;
-* управление Refresh Token;
-* хранение словаря;
-* персональный прогресс изучения слов;
-* получение неизвестных и изучаемых слов;
-* административное управление словами.
-
-Приложение построено на **NestJS** и использует **PostgreSQL + TypeORM** для хранения данных.
+* хранение и предоставление слов;
+* изменение прогресса изучения слов;
+* управление словарем.
 
 ---
+
+# Обзор архитектуры
+
+## Диаграмма классов
+
+```mermaid
+classDiagram
+    class User {
+        +UUID id
+        +string email
+        +string passwordHash
+        +UserRole role
+        +Date createdAt
+        +Date updatedAt
+        +boolean isActivated
+        +string activationLink
+    }
+
+    class RefreshToken {
+        +UUID id
+        +UUID userId
+        +string tokenHash
+        +Date expiresAt
+        +Date createdAt
+        +boolean revoked
+    }
+
+    User "1" --> "*" RefreshToken
 
 # Возможности
 
