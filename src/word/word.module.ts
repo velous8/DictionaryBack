@@ -1,12 +1,15 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import { WordService } from './word.service';
-import { WordController } from './word.controller';
-import { Word, WordSchema } from '../schemas/word.schema';
+import { AdminWordController, WordController } from './word.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Word } from './entities/word.entity';
+import { AuthModule } from 'src/auth/auth.module';
+import { Progression } from './entities/progression.entity';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Word.name, schema: WordSchema }])],
-  controllers: [WordController],
+  imports: [TypeOrmModule.forFeature([Word, Progression]),
+  AuthModule],
+  controllers: [WordController, AdminWordController],
   providers: [WordService],
 })
 export class WordModule {}

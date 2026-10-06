@@ -14,6 +14,7 @@ lerna-debug.log*
 
 # OS
 .DS_Store
+Thumbs.db
 
 # Tests
 /coverage
@@ -37,10 +38,11 @@ lerna-debug.log*
 
 # dotenv environment variable files
 .env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+.env.*
+!.env.example
+
+# TypeScript
+*.tsbuildinfo
 
 # temp directory
 .temp
@@ -52,9 +54,11 @@ pids
 *.seed
 *.pid.lock
 
-# Diagnostic reports (https://nodejs.org/api/report.html)
+# Diagnostic reports
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
+# Prisma (если используете)
 /generated/prisma
 
-/generated/prisma
+# локальный дубль проекта (удалить, если не нужно)
+Dictionary-Backend/
