@@ -36,10 +36,6 @@ API предоставляет регистрацию и авторизацию 
 
 <img width="662" height="541" alt="ER Dictionary" src="https://github.com/user-attachments/assets/c80726e3-31a0-42dc-82e9-767abff49531" />
 
-### Диаграмма последовательности
-
-<img width="831" height="1441" alt="SequenceDiagram Dictionary Back" src="https://github.com/user-attachments/assets/af480a5b-5a02-4f15-b7f0-e2b524aa4d22" />
-
 ## Основные модули
 
 ### AuthModule
