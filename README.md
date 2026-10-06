@@ -1,73 +1,111 @@
 # Nest Dictionary API
 
-Backend для приложения по изучению английских слов.  
+Backend для приложения по изучению английских слов.
+
 API предоставляет регистрацию и авторизацию пользователей, активацию аккаунта через email, JWT-аутентификацию, работу со словарём, персональный прогресс изучения слов и административное управление словарём.
 
-[![NestJS](https://img.shields.io/badge/NestJS-10-red)](https://nestjs.com/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)](https://www.postgresql.org/)
-[![Docker](https://img.shields.io/badge/Docker-ready-blue)](https://www.docker.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+## Стек
 
-## Содержание
+* **NestJS**
+* **TypeScript**
+* **PostgreSQL**
+* **TypeORM**
+* **JWT**
+* **bcrypt**
+* **Nodemailer**
+* **class-validator**
 
-- [О проекте](#о-проекте)
-- [Стек](#стек)
-- [Быстрый старт](#быстрый-старт)
-- [Переменные окружения](#переменные-окружения)
-- [API](#api)
-- [Обзор архитектуры](#обзор-архитектуры)
-- [Структура проекта](#структура-проекта)
-- [Тестирование](#тестирование)
-- [Скрипты](#скрипты)
-- [Roadmap](#roadmap)
-- [Лицензия](#лицензия)
-- [Контакты](#контакты)
+## Основные возможности
 
-# О проекте
+* Регистрация и авторизация пользователей
+* Активация аккаунта через email
+* JWT-аутентификация
+* Refresh Token
+* Получение слов из словаря
+* Получение неизвестных и изучаемых слов
+* Отслеживание прогресса изучения
+* Административный CRUD для слов
 
-**Nest Dictionary API** — REST API для приложения, предназначенного для изучения английской лексики.
+## Архитектура
 
-Backend отвечает за:
+### Диаграмма классов
 
-* регистрацию, авторизацию и аутентификацию пользователей;
-* активацию аккаунтов через email;
-* хранение и предоставление слов;
-* изменение прогресса изучения слов;
-* управление словарем.
+<img width="891" height="926" alt="ClassDiagram Dictionary Back" src="https://github.com/user-attachments/assets/c8b6e150-b0c7-4c54-9962-3b62091d5727" />
 
-### Демо
+### ER-диаграмма базы данных
 
-- Swagger: `http://localhost:3000/api/docs`
-- Скриншот: `docs/images/swagger.png`
+<img width="662" height="541" alt="ER Dictionary" src="https://github.com/user-attachments/assets/c80726e3-31a0-42dc-82e9-767abff49531" />
 
-# Стек
+### Диаграмма последовательности
 
-- **Backend:** NestJS, TypeScript
-- **БД:** PostgreSQL, TypeORM / Prisma
-- **Auth:** JWT, Passport
-- **Email:** Nodemailer
-- **Документация:** Swagger
-- **Тесты:** Jest, Supertest
-- **Инфраструктура:** Docker, docker-compose
-- **Качество:** ESLint, Prettier
+<img width="831" height="1441" alt="SequenceDiagram Dictionary Back" src="https://github.com/user-attachments/assets/af480a5b-5a02-4f15-b7f0-e2b524aa4d22" />
 
-# Быстрый старт
+## Основные модули
 
-### Требования
+### AuthModule
 
-- Node.js >= 18
-- Docker и Docker Compose
-- npm / yarn / pnpm
+Отвечает за:
 
-### Запуск
+* регистрацию и авторизацию;
+* активацию аккаунта;
+* JWT-аутентификацию;
+* работу с access и refresh токенами;
+* отправку email.
+
+### WordModule
+
+Отвечает за:
+
+* получение слов;
+* получение неизвестных слов;
+* получение изучаемых слов;
+* получение прогресса;
+* изменение прогресса;
+* CRUD слов для администратора.
+
+## Запуск
 
 ```bash
-git clone https://github.com/your-username/nest-dictionary-api.git
-cd nest-dictionary-api
-cp .env.example .env
-docker-compose up -d
 npm install
-npm run migration:run
-npm run seed
 npm run start:dev
+```
+
+API запускается на:
+
+```text
+http://localhost:3000
+```
+
+Для работы приложения необходимо настроить переменные окружения в `.env`.
+
+## Основные API
+
+### Auth
+
+```text
+POST /auth/register
+POST /auth/login
+POST /auth/logout
+POST /auth/refresh
+GET  /auth/activate/:activationLink
+```
+
+### Words
+
+```text
+GET   /word
+GET   /word/amount
+GET   /word/idsUnknown
+GET   /word/unknown
+GET   /word/known
+GET   /word/progress
+PATCH /word/progress
+```
+
+### Admin
+
+```text
+POST   /admin/word
+PATCH  /admin/word/:id
+DELETE /admin/word/:id
+```
