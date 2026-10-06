@@ -1,80 +1,72 @@
-Nest Dictionary API
+# Nest Dictionary API
 
-Backend для приложения по изучению английских слов.
+REST API для приложения по изучению английских слов.  
+Регистрация, JWT-авторизация, активация аккаунта по email, словарь, прогресс изучения и админ-управление словарём.
 
-API предоставляет регистрацию и авторизацию пользователей, активацию аккаунта через email, JWT-аутентификацию, работу со словарём, персональный прогресс изучения слов и административное управление словарём.
-
----
+[![NestJS](https://img.shields.io/badge/NestJS-10-red)](https://nestjs.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-ready-blue)](https://www.docker.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Содержание
 
-* [О проекте](#о-проекте)
+- [О проекте](#о-проекте)
+- [Стек](#стек)
+- [Быстрый старт](#быстрый-старт)
+- [Переменные окружения](#переменные-окружения)
+- [API](#api)
+- [Архитектура](#архитектура)
+- [Структура проекта](#структура-проекта)
+- [Тестирование](#тестирование)
+- [Скрипты](#скрипты)
+- [Roadmap](#roadmap)
+- [Лицензия](#лицензия)
+- [Контакты](#контакты)
 
+## О проекте
 
----
-
-# О проекте
-
-**Nest Dictionary API** — REST API для приложения, предназначенного для изучения английской лексики.
-
-Backend отвечает за:
-
-* регистрацию, авторизацию и аутентификацию пользователей;
-* активацию аккаунтов через email;
-* хранение и предоставление слов;
-* изменение прогресса изучения слов;
-* управление словарем.
-
----
-
-# Обзор архитектуры
-
-### Диаграмма классов
-<img width="891" height="926" alt="ClassDiogramDictionaryBack drawio" src="https://github.com/user-attachments/assets/c8b6e150-b0c7-4c54-9962-3b62091d5727" />
-
-## TokenService
+**Nest Dictionary API** — backend для изучения английской лексики.  
 Отвечает за:
-* генерацию токенов
-* сохранение токенов
-* удаление токенов
-* поиск токенов
-* валидацию токенов
 
-## EmailService
-Отвечает за:
-* Отправка письма
+- регистрацию, авторизацию и аутентификацию пользователей;
+- активацию аккаунтов через email;
+- хранение и выдачу слов;
+- изменение прогресса изучения;
+- CRUD слов для администратора.
 
-## AuthService
-Отвечает за:
-* регистрацию;
-* login;
-* logout;
-* активацию аккаунта;
-* JWT authentication;
+### Демо
 
-## WordModule
-Отвечает за:
-* получение слов;
-* получение неизвестных слов;
-* получение изучаемых слов;
-* получение прогресса;
-* изменение прогресса;
-* CRUD слов для администратора.
+- Swagger: `http://localhost:3000/api/docs`
+- Скриншот: `docs/images/swagger.png`
 
+## Стек
 
-### ER-диограмма классов
-<img width="662" height="541" alt="ER Dictionary" src="https://github.com/user-attachments/assets/c80726e3-31a0-42dc-82e9-767abff49531" />
----
+- **Backend:** NestJS, TypeScript
+- **БД:** PostgreSQL, TypeORM / Prisma
+- **Auth:** JWT, Passport
+- **Email:** Nodemailer
+- **Документация:** Swagger
+- **Тесты:** Jest, Supertest
+- **Инфраструктура:** Docker, docker-compose
+- **Качество:** ESLint, Prettier
 
-### Диаграмма последовательности
-<img width="831" height="1441" alt="SequenceDiogramDictionaryBack drawio" src="https://github.com/user-attachments/assets/af480a5b-5a02-4f15-b7f0-e2b524aa4d22" />
+## Быстрый старт
 
+### Требования
 
+- Node.js >= 18
+- Docker и Docker Compose
+- npm / yarn / pnpm
 
+### Запуск
 
-
-
-
-
-
-
+```bash
+git clone https://github.com/your-username/nest-dictionary-api.git
+cd nest-dictionary-api
+cp .env.example .env
+docker-compose up -d
+npm install
+npm run migration:run
+npm run seed
+npm run start:dev
