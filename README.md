@@ -106,4 +106,3 @@ POST   /admin/word
 PATCH  /admin/word/:id
 DELETE /admin/word/:id
 ```
->>>>>>> ff3b54affecd6b16e188c947d92615c8e5db6cb0
